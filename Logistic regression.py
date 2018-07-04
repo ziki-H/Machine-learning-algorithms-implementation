@@ -25,16 +25,16 @@ def data_processed(train_data, train_label, test_data, test_label):
     return (train_data, train_label, test_data, test_label)
 
 #def logistic_regression(dataset, epochs, learning_rate):
-#    feature_num = dataset.shape[1] - 1 #一共有几个feature,即数据集dataset的列数减去一,最后一列数据为label
-#    dataset_num = dataset.shape[0]     #数据集的列数,即有多少样本数
+#    feature_num = dataset.shape[1] - 1 #The number of features
+#    dataset_num = dataset.shape[0]     #The number of datasets
 #    data_X = dataset[:, 0:feature_num]
 #    data_X = np.hstack( (np.ones((dataset_num, 1)), data_X) )
-#    data_Y = dataset[:, feature_num]  #标签数据
-#    weights = np.random.rand(feature_num+1, 1)  #logistic回归系数初始化
+#    data_Y = dataset[:, feature_num]  #label
+#    weights = np.random.rand(feature_num+1, 1)  #The initilazition of logistic regression cofficients
 #    gradient_W = np.zeros((len(weights), 1))
 #    for i in range(0, epochs):
 #        WX = np.dot(data_X, weights)  
-#        H_WX =  np.exp(WX) / ( 1 + np.exp(WX) ) #H_WX即预测的概率值输出
+#        H_WX =  np.exp(WX) / ( 1 + np.exp(WX) ) #H_WX is the output of logistic regression model namely probability
 #        for i in range(0, len(gradient_W)):
 #            gradient_W[i] = (1/dataset_num) * np.sum( (H_WX - data_Y) * data_X[:, i])
 #        weights = weights - learning_rate * gradient_W
