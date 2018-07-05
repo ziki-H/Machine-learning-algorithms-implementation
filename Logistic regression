@@ -1,0 +1,78 @@
+Created on Thu Jul  5 10:17:01 2018
+
+@author: Administrator
+"""
+
+import numpy as np
+import pandas as pd
+from sklearn import linear_model
+
+def data_processed(train_data, train_label, test_data, test_label):
+    train_data = np.array(train_data)
+    train_label = np.array(train_label)
+    test_data = np.array(test_data)
+    test_label = np.array(test_label)
+    
+    for i in range(0, len(train_label)):
+        if(train_label[i] < 0):
+            train_label[i] = 0
+    for i in range(0, len(test_label)):
+        if(test_label[i] < 0):
+            test_label[i] = 0
+            
+    return (train_data, train_label, test_data, test_label)
+
+class logistic_regression(object):
+    def __init__(self, feature_num, input_num, epochs, learning_rate, decay):
+        self.feature_num = feature_num
+        self.input_num = input_num
+        self.epochs = epochs
+        self.learning_rate = learning_rate
+        self.decay = decay
+    def fit(self, train_data, train_label):
+        train_data = np.hstack( (np.ones((self.input_num, 1)), train_data ) ) #add bias items
+        weights = np.random.rand(self.feature_num+1, 1)  #initalize logistic regression coefficients subject to uniform distribution
+        gradient_W = np.zeros((len(weights), 1))         #initalize the gradients of weights
+        '''begin to train'''
+        for i in range(0, self.epochs):
+            WX = np.dot(train_data, weights)  #WX=W0 + W1*X1 + W2*X2.....
+            H_WX =  np.exp(WX) / ( 1 + np.exp(WX) ) #H_WX is the probability output of logistic regression model
+            for j in range(0, len(gradient_W)):
+                gradient_W[j] = ( 1 / (self.input_num)  * np.sum( (H_WX - train_label) * train_data[:, j]) )  
+            weights = weights - self.learning_rate * gradient_W
+            self.learning_rate = self.learning_rate / (1 + self.decay*i)   #the dacay of learning rate
+            '''print error_rate each 10 iterations'''
+            if(i % 10 == 0):
+                error_num = 0
+                error_rate = 0.0
+                for k in range(0, len(H_WX)):
+                    if(abs( H_WX[k] - train_label[k] ) > 0.5):
+                        error_num = error_num + 1
+                error_rate = error_num / len(train_label)
+                print("The error rate of training data is %.5f" %error_rate)    
+        return weights
+    
+if __name__ == '__main__':
+    
+    train_data = pd.read_excel("E:/HZQ/python/Machine Learning/logistics regression/diabetis_LR/diabetis_train_data.xlsx")
+    train_label = pd.read_excel("E:/HZQ/python/Machine Learning/logistics regression/diabetis_LR/diabetis_train_label.xlsx")
+    test_data = pd.read_excel("E:/HZQ/python/Machine Learning/logistics regression/diabetis_LR/diabetis_test_data.xlsx")
+    test_label = pd.read_excel("E:/HZQ/python/Machine Learning/logistics regression/diabetis_LR/diabetis_test_label.xlsx")
+    train_data, train_label, test_data, test_label = data_processed(train_data, train_label, test_data, test_label)
+    
+    LR = logistic_regression(feature_num=train_data.shape[1], input_num=train_data.shape[0],
+                            epochs=100, learning_rate=0.001, decay=0.01)
+    weights = LR.fit(train_data, train_label) 
+    
+    '''The logistic regression by sklearn'''
+    train_label = train_label.ravel()
+    model = linear_model.LogisticRegression()
+    model.fit(train_data, train_label)
+    model_train_output = model.predict(train_data)
+    error_num = 0
+    error_rate = 0.0
+    for k in range(0, len(model_train_output)):
+        if( model_train_output[k] != train_label[k] ):
+            error_num = error_num + 1
+        error_rate = error_num / len(train_label)
+    print("The error rate of training data by sklearn is %.5f" %error_rate)
